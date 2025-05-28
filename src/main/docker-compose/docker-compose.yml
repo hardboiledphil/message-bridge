@@ -1,0 +1,58 @@
+services:
+
+  activemq1:
+    image: quay-prd.tools.ws-00wz.bpaws.com/mirror/amq7/amq-broker-rhel8:7.11.0
+    ports: [ "8161:8161", "61616:61616", "61617:61617" ]
+    volumes:
+      - ./overrides/broker/broker.xml:/opt/amq/conf/broker.xml
+      - ./overrides/broker/broker-keystore.jks:/opt/amq/conf/broker-keystore.jks
+      - ./overrides/broker/broker-truststore.jks:/opt/amq/conf/broker-truststore.jks
+    environment:
+      - DISABLE_SECURITY=true
+      - AMQ_USER=admin
+      - AMQ_PASSWORD=admin
+      - JAVA_OPTS=-DkeyStorePassword=password
+    healthcheck:
+      test: ["CMD-SHELL", "curl --silent -f http://activemq1:8161 1> /dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  activemq2:
+    image: quay-prd.tools.ws-00wz.bpaws.com/mirror/amq7/amq-broker-rhel8:7.11.0
+    ports: [ "8162:8161", "61618:61616", "61619:61617" ]
+    volumes:
+      - ./overrides/broker/broker.xml:/opt/amq/conf/broker.xml
+      - ./overrides/broker/broker-keystore.jks:/opt/amq/conf/broker-keystore.jks
+      - ./overrides/broker/broker-truststore.jks:/opt/amq/conf/broker-truststore.jks
+    environment:
+      - DISABLE_SECURITY=true
+      - AMQ_USER=admin
+      - AMQ_PASSWORD=admin
+      - JAVA_OPTS=-DkeyStorePassword=password
+    healthcheck:
+      test: ["CMD-SHELL", "curl --silent -f http://activemq2:8161 1> /dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  message-bridge:
+    image: message-bridge:pja
+    depends_on:
+      activemq1:
+        condition: service_healthy
+      activemq2:
+        condition: service_healthy
+    environment:
+      - QUARKUS_ARTEMIS_SERVER1_URL=tcp://activemq1:61616?sslEnabled=false?jms.useCompression=true
+      - QUARKUS_ARTEMIS_SERVER1_USERNAME=artemis1
+      - QUARKUS_ARTEMIS_SERVER1_PASSWORD=artemis1
+      - QUARKUS_ARTEMIS_SERVER2_URL=tcp://activemq2:61616?sslEnabled=false?jms.useCompression=true
+      - QUARKUS_ARTEMIS_SERVER2_USERNAME=artemis2
+      - QUARKUS_ARTEMIS_SERVER2_PASSWORD=artemis2
+#      - QUARKUS_PROFILE=prod
+#      - QUARKUS_PROFILE=parallel
+      - QUARKUS_PROFILE=est
+      - SMALLRYE_MESSAGING_STRICT_BINDING=false
+      - EXT_PARALLEL=parallel
+      - EXT_DX=d1

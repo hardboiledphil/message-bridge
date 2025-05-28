@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<eodco:message1 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                       xmlns:eodco="urn:com.acme.message1">
+    <id>20091213-ACME-1</id>
+    <version>1</version>
+</eodco:message1>
