@@ -11,7 +11,8 @@ import java.time.temporal.ChronoUnit;
 public class AmqContainer extends GenericContainer<AmqContainer> {
 
     public static final DockerImageName DEFAULT_IMAGE_NAME =
-            DockerImageName.parse("amq7/amq-broker-rhel8:7.12.3");
+//            DockerImageName.parse("amq7/amq-broker-rhel8:7.12.3");
+            DockerImageName.parse("quay-prd.tools.ws-00wz.bpaws.com/mirror/amq7/amq-broker-rhel8:7.12.3");
 
     public static final String NETWORK_NAME = "AMQ";
 
