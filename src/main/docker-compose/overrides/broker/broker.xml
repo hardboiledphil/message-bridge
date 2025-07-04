@@ -128,7 +128,7 @@ under the License.
 
             <!-- Acceptor for every supported protocol -->
             <acceptor name="artemis">tcp://0.0.0.0:61616?anycastPrefix=jms.queue.;multicastPrefix=jms.topic.;tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE;useEpoll=true;amqpCredits=1000;amqpLowCredits=300;directDeliver=false;virtualTopicConsumerWildcards=C.%2A.%3E%3B3%3BselectorAware%3Dtrue;</acceptor>
-            <acceptor name="artemis-ssl">tcp://0.0.0.0:61617?anycastPrefix=jms.queue.;multicastPrefix=jms.topic.;tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE;useEpoll=true;amqpCredits=1000;amqpLowCredits=300;directDeliver=false;sslEnabled=true;keyStorePath=/opt/amq/conf/broker-keystore.jks;keyStorePassword=middleware;handshake-timeout=0;virtualTopicConsumerWildcards=C.%2A.%3E%3B3%3BselectorAware%3Dtrue;</acceptor>
+            <acceptor name="artemis-ssl">tcp://0.0.0.0:61617?anycastPrefix=jms.queue.;multicastPrefix=jms.topic.;tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE;useEpoll=true;amqpCredits=1000;amqpLowCredits=300;directDeliver=false;sslEnabled=false;handshake-timeout=0;</acceptor>
         </acceptors>
         
         <!--

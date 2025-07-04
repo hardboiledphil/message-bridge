@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @QuarkusTestResource(value = AmqContainerResource1.class, parallel = true)
 @QuarkusTestResource(value = AmqContainerResource2.class, parallel = true)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@Execution(ExecutionMode.SAME_THREAD)
+@Execution(ExecutionMode.CONCURRENT)
 public class MessageBridgeFlowITest implements QuarkusTestAwaitility {
 
     @Inject
@@ -79,7 +79,7 @@ public class MessageBridgeFlowITest implements QuarkusTestAwaitility {
         log.info("Creating sender for FLOW1 on queue: {}", flow1InputQueueName);
         try (JMSContext context = jmsConnectionFactory1.createContext(JMSContext.AUTO_ACKNOWLEDGE)) {
             var message = context.createTextMessage(testControlMessage);
-            addMetadataToMessage(headerProperties, customProperties, message);
+            addMetadataToTestMessage(headerProperties, customProperties, message);
             context.createProducer().send(context.createQueue(flow1InputQueueName), message);
         }
 
@@ -97,8 +97,8 @@ public class MessageBridgeFlowITest implements QuarkusTestAwaitility {
         }
         await("assert FLOW1 message").untilAsserted(() -> {
             assertEquals(1, messages.size());
-            assertEquals(testControlMessage, messages.get(0).getBody(String.class));
-            assertMessageMetadata(headerProperties, customProperties, jmsxProperties, messages.get(0));
+            assertEquals(testControlMessage, messages.getFirst().getBody(String.class));
+            assertMessageMetadata(headerProperties, customProperties, jmsxProperties, messages.getFirst());
             log.info("assert flow1 message - PASSED");
         });
     }
@@ -121,7 +121,7 @@ public class MessageBridgeFlowITest implements QuarkusTestAwaitility {
         log.info("Creating sender for FLOW2 on queue: {}", flow2InputQueueName);
         try (JMSContext context = jmsConnectionFactory2.createContext(JMSContext.AUTO_ACKNOWLEDGE)) {
             var message = context.createTextMessage(testControlMessage);
-            addMetadataToMessage(headerProperties, customProperties, message);
+            addMetadataToTestMessage(headerProperties, customProperties, message);
             context.createProducer().send(context.createQueue(flow2InputQueueName), message);
         }
 
@@ -139,8 +139,8 @@ public class MessageBridgeFlowITest implements QuarkusTestAwaitility {
         }
         await("assert FLOW2 message").untilAsserted(() -> {
             assertEquals(1, messages.size());
-            assertEquals(testControlMessage, messages.get(0).getBody(String.class));
-            assertMessageMetadata(headerProperties, customProperties, jmsxProperties, messages.get(0));
+            assertEquals(testControlMessage, messages.getFirst().getBody(String.class));
+            assertMessageMetadata(headerProperties, customProperties, jmsxProperties, messages.getFirst());
             log.info("assert flow2 message - PASSED");
         });
     }
@@ -180,7 +180,7 @@ public class MessageBridgeFlowITest implements QuarkusTestAwaitility {
 
         var props = customProperties.entrySet();
 
-        log.info("customProps -> {}", props);
+        log.trace("customProps -> {}", props);
         props.stream()
                 .filter(entry -> !entry.getKey().startsWith("_"))
                 .forEach(entry -> {
@@ -189,7 +189,7 @@ public class MessageBridgeFlowITest implements QuarkusTestAwaitility {
                     Object destValue;
                     try {
                         destValue = message.getObjectProperty(key);
-                        log.info("checking {} old -> {} new -> {}", key, value, destValue);
+                        log.trace("checking {} old -> {} new -> {}", key, value, destValue);
                     } catch (JMSException e) {
                         throw new RuntimeException(e);
                     }
@@ -212,9 +212,9 @@ public class MessageBridgeFlowITest implements QuarkusTestAwaitility {
         log.info("jms extension properties validation - PASSED");
     }
 
-    private static void addMetadataToMessage(final Map<String, String> headerProperties,
-                                             final Map<String, String> customProperties,
-                                             final Message message) throws JMSException {
+    private static void addMetadataToTestMessage(final Map<String, String> headerProperties,
+                                                 final Map<String, String> customProperties,
+                                                 final Message message) throws JMSException {
         for (Map.Entry<String, String> prop : headerProperties.entrySet()) {
             if ("null".equalsIgnoreCase(prop.getValue())) {
                 continue;

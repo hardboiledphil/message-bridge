@@ -1,7 +1,6 @@
 package com.acme;
 
 import io.quarkus.runtime.StartupEvent;
-import io.smallrye.reactive.messaging.jms.IncomingJmsMessageMetadata;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
@@ -33,11 +32,10 @@ public class MessageBridgeFlow1 {
     @Acknowledgment(Acknowledgment.Strategy.MANUAL)
     public Message<String> bridgeFromBroker1ToBroker2(final Message<String> jmsMessage) {
         log.info("Bridge from broker 1 to broker 2 for FLOW 1");
-//        var metadata = jmsMessage.getMetadata(IncomingJmsMessageMetadata.class).orElseThrow();
         return Message.of(jmsMessage.getPayload(), () -> {
             log.info("Returning ack for broker 1 to broker 2 for FLOW 1");
             return jmsMessage.ack();
-        });
+        }).addMetadata(MetadataMapper.getOutgoingJmsMessageMetadata(jmsMessage));
     }
 
 }

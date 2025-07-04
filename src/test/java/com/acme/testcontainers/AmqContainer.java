@@ -11,8 +11,7 @@ import java.time.temporal.ChronoUnit;
 public class AmqContainer extends GenericContainer<AmqContainer> {
 
     public static final DockerImageName DEFAULT_IMAGE_NAME =
-//            DockerImageName.parse("amq7/amq-broker-rhel8:7.12.3");
-            DockerImageName.parse("quay-prd.tools.ws-00wz.bpaws.com/mirror/amq7/amq-broker-rhel8:7.12.3");
+            DockerImageName.parse("apache/activemq-artemis:2.41.0");
 
     public static final String NETWORK_NAME = "AMQ";
 
@@ -27,10 +26,8 @@ public class AmqContainer extends GenericContainer<AmqContainer> {
                 .withStartupTimeout(Duration.of(60L, ChronoUnit.SECONDS));
         this.withClasspathResourceMapping("artemis/broker.xml",
                         "/opt/amq/conf/broker.xml", BindMode.READ_ONLY);
-//                .withClasspathResourceMapping("artemis/broker-keystore.jks",
-//                        "/opt/amq/conf/broker-keystore.jks", BindMode.READ_ONLY);
-        this.withEnv("AMQ_USER", login_cred);
-        this.withEnv("AMQ_PASSWORD", login_password);
+        this.withEnv("ARTEMIS_USER", login_cred);
+        this.withEnv("ARTEMIS_PASSWORD", login_password);
         this.addExposedPorts(AMQ_TCP_PORT, AMQ_SSL_PORT, AMQ_ADMIN_PORT);
     }
 

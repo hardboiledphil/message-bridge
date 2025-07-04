@@ -35,6 +35,6 @@ public class MessageBridgeFlow2 {
         return Message.of(jmsMessage.getPayload(), () -> {
             log.info("Returning ack for broker 2 to broker 1 for FLOW 2");
             return jmsMessage.ack();
-        });
+        }).addMetadata(MetadataMapper.getOutgoingJmsMessageMetadata(jmsMessage));
     }
 }

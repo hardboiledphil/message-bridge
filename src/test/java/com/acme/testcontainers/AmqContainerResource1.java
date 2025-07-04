@@ -15,8 +15,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class AmqContainerResource1 implements QuarkusTestResourceLifecycleManager {
 
     private static AmqContainer amqContainer1;
-    public static final String ARTEMIS_CLIENT_TRUSTSTORE_JKS = "artemis/client-truststore.jks";
-    public static final String CLIENT_TRUSTSTORE_PASSWORD = "middleware";
     public static final String NETWORK_HOST = "localhost";
     public static final String AMQ_LOGIN_CRED_1 = "artemis1";
     public static final String AMQ_LOGIN_PASSWORD_1 = "artemis1";
@@ -45,8 +43,6 @@ public class AmqContainerResource1 implements QuarkusTestResourceLifecycleManage
         return Map.of(
                 "jms1.host", getNetworkHost(),
                 "jms1.port", getNetworkPort(),
-                "jms.truststore.path", ARTEMIS_CLIENT_TRUSTSTORE_JKS,
-                "jms.truststore.password", CLIENT_TRUSTSTORE_PASSWORD,
                 "artemis1.username", AMQ_LOGIN_CRED_1,
                 "artemis1.password", AMQ_LOGIN_PASSWORD_1
         );
