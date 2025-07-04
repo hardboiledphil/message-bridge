@@ -5,9 +5,11 @@ import io.smallrye.reactive.messaging.jms.JmsProperties;
 import io.smallrye.reactive.messaging.jms.OutgoingJmsMessageMetadata;
 import org.eclipse.microprofile.reactive.messaging.Message;
 
+import java.util.Map;
+
 public class MetadataMapper {
 
-    public static OutgoingJmsMessageMetadata getOutgoingJmsMessageMetadata(Message<String> jmsMessage) {
+    public static OutgoingJmsMessageMetadata getOutgoingJmsMessageMetadata(Message<Map<String,Object>> jmsMessage) {
         IncomingJmsMessageMetadata incomingMetadata = jmsMessage.getMetadata(IncomingJmsMessageMetadata.class).orElseThrow();
         final var propNames = incomingMetadata.getPropertyNames();
         final var outgoingMetadataBuilder = OutgoingJmsMessageMetadata.builder();

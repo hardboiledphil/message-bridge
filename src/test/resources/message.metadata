@@ -28,10 +28,10 @@ ILMessageID=81e8580d-08be-4dbd-a003-701907f939bf
 JMS_TIBCO_COMPRESS=true
 MESSAGEGROUP=acme.sub
 OBJECTID=20230425-ACME-EOD-1
-TCT_MSG_OriginMessageId=81e8580d-08be-4dbd-a003-701907f939bf
-TCT_MSG_OriginMessageVersion=1
-TCT_MSG_PrevMessageId=81e8580d-08be-4dbd-a003-701907f939bf
-TCT_MSG_PrevMessageVersion=1
+MSG_OriginMessageId=81e8580d-08be-4dbd-a003-701907f939bf
+MSG_OriginMessageVersion=1
+MSG_PrevMessageId=81e8580d-08be-4dbd-a003-701907f939bf
+MSG_PrevMessageVersion=1
 VERSION=1
 </properties>
 <extensions>

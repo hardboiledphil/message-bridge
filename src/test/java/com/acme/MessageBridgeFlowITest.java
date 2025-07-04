@@ -11,6 +11,7 @@ import jakarta.jms.ConnectionFactory;
 import jakarta.jms.JMSConsumer;
 import jakarta.jms.JMSContext;
 import jakarta.jms.JMSException;
+import jakarta.jms.MapMessage;
 import jakarta.jms.Message;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
@@ -64,9 +65,9 @@ public class MessageBridgeFlowITest implements QuarkusTestAwaitility {
     @Test
     void testFlow1To2() throws JMSException {
 
-        var testControlMessage = ResourceReader.readResourceToString("message.xml");
-        assertNotNull(testControlMessage, "testControlMessage is null");
-        assertNotEquals("", testControlMessage, "testControlMessage is empty");
+        var testControlMessage1 = ResourceReader.readResourceToString("message.xml");
+        assertNotNull(testControlMessage1, "testControlMessage is null");
+        assertNotEquals("", testControlMessage1, "testControlMessage is empty");
         var testControlMessageMetadata = ResourceReader.readResourceToString("message.metadata");
         assertNotNull(testControlMessageMetadata, "testControlMessageMetadata is null");
         assertNotEquals("", testControlMessageMetadata, "testControlMessageMetadata is empty");
@@ -78,7 +79,8 @@ public class MessageBridgeFlowITest implements QuarkusTestAwaitility {
 
         log.info("Creating sender for FLOW1 on queue: {}", flow1InputQueueName);
         try (JMSContext context = jmsConnectionFactory1.createContext(JMSContext.AUTO_ACKNOWLEDGE)) {
-            var message = context.createTextMessage(testControlMessage);
+            MapMessage message = context.createMapMessage();
+            message.setString("cslData", testControlMessage1);
             addMetadataToTestMessage(headerProperties, customProperties, message);
             context.createProducer().send(context.createQueue(flow1InputQueueName), message);
         }
@@ -97,7 +99,7 @@ public class MessageBridgeFlowITest implements QuarkusTestAwaitility {
         }
         await("assert FLOW1 message").untilAsserted(() -> {
             assertEquals(1, messages.size());
-            assertEquals(testControlMessage, messages.getFirst().getBody(String.class));
+            assertEquals(testControlMessage1, messages.getFirst().getBody(String.class));
             assertMessageMetadata(headerProperties, customProperties, jmsxProperties, messages.getFirst());
             log.info("assert flow1 message - PASSED");
         });
@@ -106,9 +108,9 @@ public class MessageBridgeFlowITest implements QuarkusTestAwaitility {
     @Test
     void testFlow2To1() throws JMSException {
 
-        var testControlMessage = ResourceReader.readResourceToString("message.xml");
-        assertNotNull(testControlMessage, "testControlMessage is null");
-        assertNotEquals("", testControlMessage, "testControlMessage is empty");
+        var testControlMessage2 = ResourceReader.readResourceToString("message.xml");
+        assertNotNull(testControlMessage2, "testControlMessage is null");
+        assertNotEquals("", testControlMessage2, "testControlMessage is empty");
         var testControlMessageMetadata = ResourceReader.readResourceToString("message.metadata");
         assertNotNull(testControlMessageMetadata, "testControlMessageMetadata is null");
         assertNotEquals("", testControlMessageMetadata, "testControlMessageMetadata is empty");
@@ -120,7 +122,8 @@ public class MessageBridgeFlowITest implements QuarkusTestAwaitility {
 
         log.info("Creating sender for FLOW2 on queue: {}", flow2InputQueueName);
         try (JMSContext context = jmsConnectionFactory2.createContext(JMSContext.AUTO_ACKNOWLEDGE)) {
-            var message = context.createTextMessage(testControlMessage);
+            var message = context.createMapMessage();
+            message.setString("cslData", testControlMessage2);
             addMetadataToTestMessage(headerProperties, customProperties, message);
             context.createProducer().send(context.createQueue(flow2InputQueueName), message);
         }
@@ -139,7 +142,7 @@ public class MessageBridgeFlowITest implements QuarkusTestAwaitility {
         }
         await("assert FLOW2 message").untilAsserted(() -> {
             assertEquals(1, messages.size());
-            assertEquals(testControlMessage, messages.getFirst().getBody(String.class));
+            assertEquals(testControlMessage2, messages.getFirst().getBody(String.class));
             assertMessageMetadata(headerProperties, customProperties, jmsxProperties, messages.getFirst());
             log.info("assert flow2 message - PASSED");
         });

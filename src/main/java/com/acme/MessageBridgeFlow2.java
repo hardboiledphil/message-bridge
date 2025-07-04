@@ -11,6 +11,8 @@ import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import org.eclipse.microprofile.reactive.messaging.Outgoing;
 
+import java.util.Map;
+
 @Slf4j
 @ApplicationScoped
 public class MessageBridgeFlow2 {
@@ -30,7 +32,7 @@ public class MessageBridgeFlow2 {
     @Incoming("flow-2-to-1-input")
     @Outgoing("flow-2-to-1-output")
     @Acknowledgment(Acknowledgment.Strategy.MANUAL)
-    public Message<String> bridgeFromBroker2ToBroker1(final Message<String> jmsMessage) {
+    public Message<Map<String,Object>> bridgeFromBroker2ToBroker1(final Message<Map<String,Object>> jmsMessage) {
         log.info("Bridge from broker 2 to broker 1 for FLOW 2");
         return Message.of(jmsMessage.getPayload(), () -> {
             log.info("Returning ack for broker 2 to broker 1 for FLOW 2");
