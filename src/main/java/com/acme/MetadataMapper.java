@@ -7,7 +7,6 @@ import jakarta.jms.JMSException;
 import jakarta.jms.MapMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.reactive.messaging.Message;
-import org.eclipse.microprofile.reactive.messaging.Metadata;
 
 import java.util.Map;
 
@@ -30,7 +29,7 @@ public class MetadataMapper {
         return outgoingMetadataBuilder.build();
     }
 
-    public static void mapRequiredProperties(final MapMessage jmsMapMessage,
+    public static void addRequiredProperties(final MapMessage jmsMapMessage,
                                              final IncomingJmsMessageMetadata metadata) {
         metadata.getPropertyNames().asIterator().forEachRemaining(propName -> {
             String propValue = metadata.getStringProperty(propName);
