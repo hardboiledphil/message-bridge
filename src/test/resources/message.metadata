@@ -9,7 +9,7 @@ JMSPriority=4
 JMSRedelivered=false
 JMSReplyTo=ACME.REPLY
 JMSTimestamp=1688052351005
-JMSType=java.lang.String
+JMSType=java.util.HashMap
 </header>
 <properties>
 __AMQ_CID=ID:message-bridge-t5bdf-33979-1687515452133-58:1

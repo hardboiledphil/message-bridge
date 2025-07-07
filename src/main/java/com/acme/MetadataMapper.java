@@ -3,10 +3,15 @@ package com.acme;
 import io.smallrye.reactive.messaging.jms.IncomingJmsMessageMetadata;
 import io.smallrye.reactive.messaging.jms.JmsProperties;
 import io.smallrye.reactive.messaging.jms.OutgoingJmsMessageMetadata;
+import jakarta.jms.JMSException;
+import jakarta.jms.MapMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.reactive.messaging.Message;
+import org.eclipse.microprofile.reactive.messaging.Metadata;
 
 import java.util.Map;
 
+@Slf4j
 public class MetadataMapper {
 
     public static OutgoingJmsMessageMetadata getOutgoingJmsMessageMetadata(Message<Map<String,Object>> jmsMessage) {
@@ -21,6 +26,20 @@ public class MetadataMapper {
         }
         outgoingMetadataBuilder.withProperties(jmsPropertiesBuilder.build());
         outgoingMetadataBuilder.withCorrelationId(incomingMetadata.getCorrelationId());
+        log.info("type: {}", incomingMetadata.getType());
         return outgoingMetadataBuilder.build();
+    }
+
+    public static void mapRequiredProperties(final MapMessage jmsMapMessage,
+                                             final IncomingJmsMessageMetadata metadata) {
+        metadata.getPropertyNames().asIterator().forEachRemaining(propName -> {
+            String propValue = metadata.getStringProperty(propName);
+            try {
+                jmsMapMessage.setStringProperty(propName, propValue);
+            } catch (JMSException e) {
+                throw new RuntimeException(e);
+            }
+            log.info("Mapped property: {} with value: {}", propName, propValue);
+        });
     }
 }

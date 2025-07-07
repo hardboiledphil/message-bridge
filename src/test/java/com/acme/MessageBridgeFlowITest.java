@@ -15,6 +15,7 @@ import jakarta.jms.MapMessage;
 import jakarta.jms.Message;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.jms.client.ActiveMQMapMessage;
 import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.TestInstance;
@@ -99,8 +100,9 @@ public class MessageBridgeFlowITest implements QuarkusTestAwaitility {
         }
         await("assert FLOW1 message").untilAsserted(() -> {
             assertEquals(1, messages.size());
-            assertEquals(testControlMessage1, messages.getFirst().getBody(String.class));
-            assertMessageMetadata(headerProperties, customProperties, jmsxProperties, messages.getFirst());
+            ActiveMQMapMessage message = (ActiveMQMapMessage) messages.getFirst();
+            assertEquals(testControlMessage1, message.getString("cslData"));
+            assertMessageMetadata(headerProperties, customProperties, jmsxProperties, message);
             log.info("assert flow1 message - PASSED");
         });
     }
@@ -183,7 +185,7 @@ public class MessageBridgeFlowITest implements QuarkusTestAwaitility {
 
         var props = customProperties.entrySet();
 
-        log.trace("customProps -> {}", props);
+        log.info("customProps -> {}", props);
         props.stream()
                 .filter(entry -> !entry.getKey().startsWith("_"))
                 .forEach(entry -> {
@@ -192,7 +194,7 @@ public class MessageBridgeFlowITest implements QuarkusTestAwaitility {
                     Object destValue;
                     try {
                         destValue = message.getObjectProperty(key);
-                        log.trace("checking {} old -> {} new -> {}", key, value, destValue);
+                        log.info("checking customProperty {} old -> {} new -> {}", key, value, destValue);
                     } catch (JMSException e) {
                         throw new RuntimeException(e);
                     }
