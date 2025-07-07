@@ -4,7 +4,6 @@ import io.quarkus.runtime.StartupEvent;
 import io.smallrye.common.annotation.Identifier;
 import io.smallrye.reactive.messaging.annotations.Blocking;
 import io.smallrye.reactive.messaging.jms.IncomingJmsMessageMetadata;
-import io.smallrye.reactive.messaging.jms.JmsProperties;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
@@ -20,7 +19,6 @@ import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.eclipse.microprofile.reactive.messaging.Outgoing;
 import org.eclipse.microprofile.reactive.messaging.Message;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletionStage;
 
@@ -61,6 +59,7 @@ public class MessageBridgeFlow1 {
             var nack = message.nack(failure.error()); // Return the original message for retry or further processing
             return null;
         }
+        log.info("Bridge from broker 1 to broker 2 for FLOW 1 PROCESSED MESSAGE");
         return message;
     }
 
@@ -75,13 +74,11 @@ public class MessageBridgeFlow1 {
         String queueName = "";
         try {
             queueName = destination.getQueueName();
-            IncomingJmsMessageMetadata incomingMetadata = jmsMessage.getMetadata(IncomingJmsMessageMetadata.class).orElseThrow(() -> new JMSException("IncomingJmsMessageMetadata not found"));
-
+            IncomingJmsMessageMetadata incomingMetadata = jmsMessage.getMetadata(IncomingJmsMessageMetadata.class)
+                    .orElseThrow(() -> new JMSException("IncomingJmsMessageMetadata not found"));
             newMapMessage = jmsContext.createMapMessage();
             newMapMessage.setString("cslData", (String) jmsMessage.getPayload().get("cslData"));
-
             MetadataMapper.mapRequiredProperties(newMapMessage, incomingMetadata);
-
             jmsContext.createProducer().send(destination, newMapMessage);
         } catch (JMSException e) {
             log.error("Error sending JMS MapMessage to destination: {}", queueName, e);

@@ -124,7 +124,7 @@ public class MessageBridgeFlowITest implements QuarkusTestAwaitility {
 
         log.info("Creating sender for FLOW2 on queue: {}", flow2InputQueueName);
         try (JMSContext context = jmsConnectionFactory2.createContext(JMSContext.AUTO_ACKNOWLEDGE)) {
-            var message = context.createMapMessage();
+            MapMessage message = context.createMapMessage();
             message.setString("cslData", testControlMessage2);
             addMetadataToTestMessage(headerProperties, customProperties, message);
             context.createProducer().send(context.createQueue(flow2InputQueueName), message);
@@ -144,8 +144,9 @@ public class MessageBridgeFlowITest implements QuarkusTestAwaitility {
         }
         await("assert FLOW2 message").untilAsserted(() -> {
             assertEquals(1, messages.size());
-            assertEquals(testControlMessage2, messages.getFirst().getBody(String.class));
-            assertMessageMetadata(headerProperties, customProperties, jmsxProperties, messages.getFirst());
+            ActiveMQMapMessage message = (ActiveMQMapMessage) messages.getFirst();
+            assertEquals(testControlMessage2, message.getString("cslData"));
+            assertMessageMetadata(headerProperties, customProperties, jmsxProperties, message);
             log.info("assert flow2 message - PASSED");
         });
     }

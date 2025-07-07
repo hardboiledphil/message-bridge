@@ -13,11 +13,6 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 @ApplicationScoped
 public class ConnectionFactoryBean {
 
-//    @Produces
-//    ConnectionFactory factory() {
-//        return new ActiveMQJMSConnectionFactory("tcp://localhost:61616", null, null);
-//    }
-
     ConnectionFactory connectionFactory1;
 
     @ConfigProperty(name = "quarkus.artemis.server1.url")
