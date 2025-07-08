@@ -33,12 +33,22 @@ public class MetadataMapper {
                                              final IncomingJmsMessageMetadata metadata) {
         metadata.getPropertyNames().asIterator().forEachRemaining(propName -> {
             String propValue = metadata.getStringProperty(propName);
+            // Don't forward broker specific properties
+            if (propName.startsWith("__JMS")
+                    || propName.startsWith("__HDR")
+                    || propName.startsWith("_AMQ")
+                    || propName.startsWith("JMS_TIBCO")
+            ) {
+                // Skip JMS properties that start with "jms."
+                log.debug("Skipping JMS property: {}", propName);
+                return;
+            }
             try {
                 jmsMapMessage.setStringProperty(propName, propValue);
             } catch (JMSException e) {
                 throw new RuntimeException(e);
             }
-            log.info("Mapped property: {} with value: {}", propName, propValue);
+            log.info("XXXXX Mapped property: {} with value: {}", propName, propValue);
         });
     }
 }

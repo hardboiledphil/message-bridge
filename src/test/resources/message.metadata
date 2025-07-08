@@ -36,5 +36,6 @@ VERSION=1
 </properties>
 <extensions>
 JMSXDeliveryCount=1
-JMSXGroupSeq=0
+JMSXGroupSeq=123
+JMSXGroupID=groupid123
 </extensions>

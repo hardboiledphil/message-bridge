@@ -155,7 +155,7 @@ public class MessageBridgeFlowITest implements QuarkusTestAwaitility {
                                               final Map<String, String> customProperties,
                                               final Map<String, String> jmsxProperties,
                                               final Message message) throws JMSException {
-        log.info("=== Message metadata validation ===");
+        log.info("\n=== Message metadata validation ===");
 
         for (Map.Entry<String, String> prop : headerProperties.entrySet()) {
             if ("null".equalsIgnoreCase(prop.getValue())) {
@@ -180,6 +180,7 @@ public class MessageBridgeFlowITest implements QuarkusTestAwaitility {
                 case "JMSTimestamp", "JMSType", "JMSMessageID" -> {
                     // Do nothing - Created via producer or overridden by broker
                 }
+
             }
         }
         log.info("jms header properties validation - PASSED");
@@ -191,6 +192,9 @@ public class MessageBridgeFlowITest implements QuarkusTestAwaitility {
                 .filter(entry -> !entry.getKey().startsWith("_"))
                 .forEach(entry -> {
                     var key = entry.getKey();
+                    if (key.startsWith("JMS_TIBCO")) { // we will skip this if found in properties
+                        return;
+                    }
                     var value = entry.getValue();
                     Object destValue;
                     try {
@@ -206,12 +210,14 @@ public class MessageBridgeFlowITest implements QuarkusTestAwaitility {
 
         for (Map.Entry<String, String> prop : jmsxProperties.entrySet()) {
             var trimmedIfNotNull = prop.getKey() != null ? prop.getKey().trim() : null;
-            log.debug("asserting jmsxProperty {}=({},{})", trimmedIfNotNull, prop.getValue(), message.getObjectProperty(trimmedIfNotNull));
+            log.info("asserting jmsxProperty {}=({},{})", trimmedIfNotNull, prop.getValue(), message.getObjectProperty(trimmedIfNotNull));
             switch (Objects.requireNonNull(trimmedIfNotNull)) {
                 case "JMSXDeliveryCount" ->
                         assertEquals(Integer.parseInt(prop.getValue().trim()), message.getObjectProperty(trimmedIfNotNull));
                 case "JMSXGroupSeq" ->
                         assertEquals(Integer.parseInt(prop.getValue().trim()), message.getObjectProperty(trimmedIfNotNull));
+                case "JMSXGroupID" ->
+                        assertEquals(prop.getValue().trim(), message.getObjectProperty(trimmedIfNotNull));
                 default -> throw new RuntimeException("not expecting jms extension called " + prop.getKey());
             }
         }

@@ -28,6 +28,10 @@ public class MessageBridgeFlow1 {
     String enabled;
 
     @Inject
+    @ConfigProperty(name = "mp.messaging.outgoing.flow-1-to-2-output.destination")
+    String flow1OutputQueueName;
+
+    @Inject
     @Identifier("bridge-connection2-factory")
     ConnectionFactory jmsConnectionFactory2;
 
@@ -38,7 +42,7 @@ public class MessageBridgeFlow1 {
         if (enabled.equals("true")) {
             log.info("Starting up FLOW 1");
             jmsContext = jmsConnectionFactory2.createContext();
-            FLOW_ONE_TO_TWO_OUTPUT = jmsContext.createQueue(Queues.FLOW_ONE_TO_TWO_OUTPUT);
+            FLOW_ONE_TO_TWO_OUTPUT = jmsContext.createQueue(flow1OutputQueueName);
         } else {
             log.info("Disabled FLOW 1");
         }
