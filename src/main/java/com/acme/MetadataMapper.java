@@ -37,10 +37,11 @@ public class MetadataMapper {
             if (propName.startsWith("__JMS")
                     || propName.startsWith("__HDR")
                     || propName.startsWith("_AMQ")
+                    || propName.startsWith("__AMQ")
                     || propName.startsWith("JMS_TIBCO")
             ) {
                 // Skip JMS properties that start with "jms."
-                log.debug("Skipping JMS property: {}", propName);
+                log.info("Skipping property: {}", propName);
                 return;
             }
             try {
@@ -48,7 +49,7 @@ public class MetadataMapper {
             } catch (JMSException e) {
                 throw new RuntimeException(e);
             }
-            log.info("XXXXX Mapped property: {} with value: {}", propName, propValue);
+            log.info("Mapped property: {} with value: {}", propName, propValue);
         });
     }
 }

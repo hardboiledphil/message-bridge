@@ -76,13 +76,15 @@ public class MessageBridgeFlowITest implements QuarkusTestAwaitility {
         var customProperties = ResourceReader.getCustomProperties(testControlMessageMetadata);
         var jmsxProperties = ResourceReader.getJmsExtensionsProperties(testControlMessageMetadata);
 
-        log.info("jmsxProperties -> {}", jmsxProperties);
+        log.debug("headerProperties to send -> {}", headerProperties);
+        log.debug("customProperties to send -> {}", customProperties);
+        log.debug("jmsxProperties to send -> {}", jmsxProperties);
 
         log.info("Creating sender for FLOW1 on queue: {}", flow1InputQueueName);
         try (JMSContext context = jmsConnectionFactory1.createContext(JMSContext.AUTO_ACKNOWLEDGE)) {
             MapMessage message = context.createMapMessage();
             message.setString("cslData", testControlMessage1);
-            addMetadataToTestMessage(headerProperties, customProperties, message);
+            addMetadataToTestMessage(headerProperties, customProperties, jmsxProperties, message);
             context.createProducer().send(context.createQueue(flow1InputQueueName), message);
         }
 
@@ -126,7 +128,7 @@ public class MessageBridgeFlowITest implements QuarkusTestAwaitility {
         try (JMSContext context = jmsConnectionFactory2.createContext(JMSContext.AUTO_ACKNOWLEDGE)) {
             MapMessage message = context.createMapMessage();
             message.setString("cslData", testControlMessage2);
-            addMetadataToTestMessage(headerProperties, customProperties, message);
+            addMetadataToTestMessage(headerProperties, customProperties, jmsxProperties, message);
             context.createProducer().send(context.createQueue(flow2InputQueueName), message);
         }
 
@@ -226,6 +228,7 @@ public class MessageBridgeFlowITest implements QuarkusTestAwaitility {
 
     private static void addMetadataToTestMessage(final Map<String, String> headerProperties,
                                                  final Map<String, String> customProperties,
+                                                 final Map<String, String> jmsxProperties,
                                                  final Message message) throws JMSException {
         for (Map.Entry<String, String> prop : headerProperties.entrySet()) {
             if ("null".equalsIgnoreCase(prop.getValue())) {
@@ -250,6 +253,11 @@ public class MessageBridgeFlowITest implements QuarkusTestAwaitility {
 
         for (Map.Entry<String, String> prop : customProperties.entrySet()) {
             log.trace("Adding customProperty -> {}={}", prop.getKey(), prop.getValue());
+            message.setObjectProperty(prop.getKey(), prop.getValue());
+        }
+
+        for (Map.Entry<String, String> prop : jmsxProperties.entrySet()) {
+            log.trace("Adding jmsxProperty -> {}={}", prop.getKey(), prop.getValue());
             message.setObjectProperty(prop.getKey(), prop.getValue());
         }
     }
