@@ -16,23 +16,23 @@ public class MessageSender {
     public static final String CSL_DATA = "cslData";
 
     public static Result<MapMessage> sendJmsMapMessage(final JMSContext jmsContext,
-                                                       final Message<Map<String, Object>> jmsMessage,
+                                                       final Message<Map<String, Object>> incomingMessage,
                                                        final Queue destination){
-        MapMessage newMapMessage = null;
+        MapMessage outgoingMessage = null;
         String queueName = "";
         try {
             queueName = destination.getQueueName();
-            IncomingJmsMessageMetadata incomingMetadata = jmsMessage.getMetadata(IncomingJmsMessageMetadata.class)
+            IncomingJmsMessageMetadata incomingMetadata = incomingMessage.getMetadata(IncomingJmsMessageMetadata.class)
                     .orElseThrow(() -> new JMSException("IncomingJmsMessageMetadata not found"));
-            newMapMessage = jmsContext.createMapMessage();
-            newMapMessage.setString("cslData", (String) jmsMessage.getPayload().get(CSL_DATA));
-            MetadataMapper.addRequiredProperties(newMapMessage, incomingMetadata);
-            jmsContext.createProducer().send(destination, newMapMessage);
+            outgoingMessage = jmsContext.createMapMessage();
+            outgoingMessage.setString("cslData", (String) incomingMessage.getPayload().get(CSL_DATA));
+            MetadataMapper.addRequiredProperties(outgoingMessage, incomingMetadata);
+            jmsContext.createProducer().send(destination, outgoingMessage);
         } catch (JMSException e) {
             log.error("Error sending JMS MapMessage to destination: {}", queueName, e);
             return new Failure<>(e);
         }
         log.info("Message sent to destination: {}", queueName);
-        return new Success<>(newMapMessage);
+        return new Success<>(outgoingMessage);
     }
 }
